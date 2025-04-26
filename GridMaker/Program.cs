@@ -1,5 +1,5 @@
 ﻿using System.Drawing;
-using System.Drawing.Imaging;
+using System.Diagnostics;
 
 namespace GridMaker
 {
@@ -24,7 +24,7 @@ namespace GridMaker
         {
             int pxSizeLimit = (int)MathF.Sqrt((float)(MEMORY_SIZE_LIMIT / BYTE_PER_PIXEL));
 
-            Console.Write($"サイズ(px / 最大{pxSizeLimit:#,0}px): ");
+            Console.Write($"サイズ(px / 最大{pxSizeLimit:N0}px): ");
             int size;
             if (!int.TryParse(Console.ReadLine(), out size))
                 size = 1024;
@@ -115,18 +115,30 @@ namespace GridMaker
             isDo = false;
             b.Save("image.png");
 
-            Console.WriteLine("image.pngに保存済み\n\n何かキーを押して終了");
+            b.Dispose();
+
+            Console.WriteLine("\nimage.pngに保存済み\n\n何かキーを押して終了");
             Console.ReadKey();
         }
 
         private static async Task PrintProcess()
         {
-
-            await Task.Yield();
+            var sw = new Stopwatch();
+            sw.Start();
 
             //画像処理が実行中の間繰り返す
-            while(isDo)
-                Console.WriteLine($"{currentProcess}/{maxProcess} | {((double)currentProcess / maxProcess)*100:F2}%");
+            while (isDo)
+            {
+                await Task.Delay(50);
+
+                var t = sw.ElapsedMilliseconds;
+                ulong 残りプロセス = maxProcess - currentProcess;
+                double _1プロセス辺りの時間 = (double)t / currentProcess;
+                ulong finishTime = (ulong)(残りプロセス * _1プロセス辺りの時間 * 0.001);
+                Console.Write($"\r{currentProcess,11:N0} / {maxProcess,11:N0} | {(((double)currentProcess / maxProcess) * 100),6:F2}% | 残り{finishTime,3}秒");
+            }
+
+            sw.Stop();
 
         }
 
