@@ -46,27 +46,23 @@ namespace GridMaker
             int gridSize = ((size-linePx) / gridCount) - linePx;
 
             Console.Write("線の色(255までのRGBを空白で区切る): ");
-            int[] lRGB = new int[3];
+            int[] lRGB = [30, 30, 30];
             var c = Console.ReadLine().Split(' ', '　');
-            if (c.Length < 3)
-                c = ["30","30","30"];
+            int indexMax = Math.Min(lRGB.Length, c.Length);
 
-            for (int i = 0; i < lRGB.Length; i++) 
+            for (int i = 0; i < indexMax; i++) 
             {
-                if (!int.TryParse(c[i], out lRGB[i]))
-                    lRGB[i] = 30;
+                int.TryParse(c[i], out lRGB[i]);
             }
 
             Console.Write("グリッドの色(255までのRGBを空白で区切る): ");
-            int[] gRGB = new int[3];
+            int[] gRGB = [40, 180, 50];
             c = Console.ReadLine().Split(' ', '　');
-            if (c.Length < 3)
-                c = ["200", "200", "200"];
+            indexMax = Math.Min(gRGB.Length, c.Length);
 
-            for (int i = 0; i < gRGB.Length; i++) 
+            for (int i = 0; i < indexMax; i++) 
             {
-                if (!int.TryParse(c[i], out gRGB[i]))
-                    gRGB[i] = 200;
+                int.TryParse(c[i], out gRGB[i]);
             }
 
             //境界含めた1セル辺りのサイズ
