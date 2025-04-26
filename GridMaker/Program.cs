@@ -5,18 +5,32 @@ namespace GridMaker
 {
     internal class Program
     {
-        static long maxProcess;
-        static long currentProcess = 0;
+        //最大プロセス数
+        static ulong maxProcess;
 
+        //現在のプロセス数
+        static ulong currentProcess = 0;
+
+        //実行中フラグ
         static bool isDo = true;
+
+        //Bitmapクラスの画像サイズ制限は1GB (GDI+依存)
+        const ulong MEMORY_SIZE_LIMIT = (1) * 1024 * 1024 * 1024;
+
+        //1pxあたりのサイズ
+        const ushort BYTE_PER_PIXEL = 4;
 
         static void Main()
         {
-            Console.Write("サイズ(px): ");
+            int pxSizeLimit = (int)MathF.Sqrt((float)(MEMORY_SIZE_LIMIT / BYTE_PER_PIXEL));
+
+            Console.Write($"サイズ(px / 最大{pxSizeLimit:#,0}px): ");
             int size;
             if (!int.TryParse(Console.ReadLine(), out size))
                 size = 1024;
-            //int size = int.Parse(Console.ReadLine());
+
+            if (size > pxSizeLimit)
+                size = pxSizeLimit;
 
             Bitmap b = new Bitmap(size,size);
 
@@ -41,7 +55,6 @@ namespace GridMaker
             {
                 if (!int.TryParse(c[i], out lRGB[i]))
                     lRGB[i] = 30;
-
             }
 
             Console.Write("グリッドの色(255までのRGBを空白で区切る): ");
@@ -54,35 +67,38 @@ namespace GridMaker
             {
                 if (!int.TryParse(c[i], out gRGB[i]))
                     gRGB[i] = 200;
-
             }
 
+            //境界含めた1セル辺りのサイズ
             int unitPx = gridSize + linePx;
 
-            maxProcess = size * size;
+            maxProcess = (ulong)(size * size);
             currentProcess = 0;
 
+            //進行度表示スレッド
             Task.Run(PrintProcess);
 
             for (int x = 0; x < size; x++)
             {
                 for(int y = 0; y < size; y++)
                 {
-                        
-
+                    //描画するピクセルが範囲外なら何もしない
+                    //最初の境界線の分を引く
                     if (x - linePx >= unitPx * gridCount || y - linePx >= unitPx * gridCount)
                     {
                         currentProcess++;
                         continue;
                     }
-                        
 
-                        if (x<linePx || y<linePx)
+                    //最初の境界線描画
+                    if (x<linePx || y<linePx)
                     {
                         b.SetPixel(x, y, Color.FromArgb(lRGB[0], lRGB[1], lRGB[2]));
                         continue;
                     }
 
+                    //現在の描画位置をセル内での相対位置に変換
+                    //最初の境界線の分を引く
                     var cx = (x - linePx) % unitPx;
                     var cy = (y - linePx) % unitPx;
 
@@ -99,7 +115,7 @@ namespace GridMaker
                 }
             }
 
-
+            //実行中フラグを消す
             isDo = false;
             b.Save("image.png");
 
@@ -112,7 +128,7 @@ namespace GridMaker
 
             await Task.Yield();
 
-
+            //画像処理が実行中の間繰り返す
             while(isDo)
                 Console.WriteLine($"{currentProcess}/{maxProcess} | {((double)currentProcess / maxProcess)*100:F2}%");
 
