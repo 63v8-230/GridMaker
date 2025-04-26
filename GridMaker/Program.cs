@@ -13,30 +13,49 @@ namespace GridMaker
         static void Main()
         {
             Console.Write("サイズ(px): ");
-            int size = int.Parse(Console.ReadLine());
+            int size;
+            if (!int.TryParse(Console.ReadLine(), out size))
+                size = 1024;
+            //int size = int.Parse(Console.ReadLine());
 
             Bitmap b = new Bitmap(size,size);
 
             Console.Write("線の太さ(px): ");
-            int linePx = int.Parse(Console.ReadLine());
+            int linePx;
+            if (!int.TryParse(Console.ReadLine(), out linePx))
+                linePx = 5;
 
             Console.Write("1列あたりグリッドの数: ");
-            int gridCount = int.Parse(Console.ReadLine());
+            int gridCount;
+            if(!int.TryParse(Console.ReadLine(), out gridCount))
+                gridCount = 8;
             int gridSize = ((size-linePx) / gridCount) - linePx;
 
             Console.Write("線の色(255までのRGBを空白で区切る): ");
             int[] lRGB = new int[3];
             var c = Console.ReadLine().Split(' ', '　');
-            lRGB[0] = int.Parse(c[0]);
-            lRGB[1] = int.Parse(c[1]);
-            lRGB[2] = int.Parse(c[2]);
+            if (c.Length < 3)
+                c = ["30","30","30"];
+
+            for (int i = 0; i < lRGB.Length; i++) 
+            {
+                if (!int.TryParse(c[i], out lRGB[i]))
+                    lRGB[i] = 30;
+
+            }
 
             Console.Write("グリッドの色(255までのRGBを空白で区切る): ");
             int[] gRGB = new int[3];
             c = Console.ReadLine().Split(' ', '　');
-            gRGB[0] = int.Parse(c[0]);
-            gRGB[1] = int.Parse(c[1]);
-            gRGB[2] = int.Parse(c[2]);
+            if (c.Length < 3)
+                c = ["200", "200", "200"];
+
+            for (int i = 0; i < gRGB.Length; i++) 
+            {
+                if (!int.TryParse(c[i], out gRGB[i]))
+                    gRGB[i] = 200;
+
+            }
 
             int unitPx = gridSize + linePx;
 
