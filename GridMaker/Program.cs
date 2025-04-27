@@ -130,11 +130,8 @@ namespace GridMaker
             while (isDo)
             {
                 await Task.Delay(50);
-
                 var t = sw.ElapsedMilliseconds;
-                ulong 残りプロセス = maxProcess - currentProcess;
-                double _1プロセス辺りの時間 = (double)t / currentProcess;
-                ulong finishTime = (ulong)(残りプロセス * _1プロセス辺りの時間 * 0.001);
+                ulong finishTime = (ulong)((maxProcess - currentProcess) * ((double)t / currentProcess) * 0.001);
                 Console.Write($"\r{currentProcess,11:N0} / {maxProcess,11:N0} | {(((double)currentProcess / maxProcess) * 100),6:F2}% | 残り{finishTime,3}秒");
             }
 
